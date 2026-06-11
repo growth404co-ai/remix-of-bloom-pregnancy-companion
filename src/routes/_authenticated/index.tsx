@@ -1,30 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { queryOptions } from "@tanstack/react-query";
 import { getProfile } from "@/lib/profiles.functions";
 import { getBabyWeek } from "@/lib/products.functions";
 import { getProducts } from "@/lib/products.functions";
-import { queryOptions } from "@tanstack/react-query";
 import { useCart } from "@/hooks/use-cart";
-import { differenceInWeeks, addWeeks, format } from "date-fns";
-import { Sparkles, ChevronRight, Plus } from "lucide-react";
+import { differenceInWeeks, format } from "date-fns";
+import { Sparkles, Plus } from "lucide-react";
 
 const profileQuery = () =>
   queryOptions({
     queryKey: ["profile"],
-    queryFn: () => useServerFn(getProfile)()({}),
+    queryFn: () => getProfile(),
   });
 
 const babyWeekQuery = (week: number) =>
   queryOptions({
     queryKey: ["baby-week", week],
-    queryFn: () => useServerFn(getBabyWeek)({ data: { week } }),
+    queryFn: () => getBabyWeek({ data: { week } }),
   });
 
 const productsQuery = () =>
   queryOptions({
     queryKey: ["products"],
-    queryFn: () => useServerFn(getProducts)()({}),
+    queryFn: () => getProducts(),
   });
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -49,7 +48,9 @@ function HomePage() {
   const weeksPregnant = dueDate
     ? Math.max(1, Math.min(40, 40 - differenceInWeeks(dueDate, now)))
     : 20;
-  const daysLeft = dueDate ? Math.max(0, Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 140;
+  const daysLeft = dueDate
+    ? Math.max(0, Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    : 140;
   const trimester = weeksPregnant <= 12 ? "1st" : weeksPregnant <= 27 ? "2nd" : "3rd";
   const dueDateStr = dueDate ? format(dueDate, "MMM d") : "Nov 12";
 
@@ -75,7 +76,8 @@ function HomePage() {
             Good morning, {profile?.display_name || "there"} 🌷
           </p>
           <p className="font-serif text-xl text-[var(--ink)]">
-            Week {Math.round(weeksPregnant)} · {trimester === "2nd" ? "Halfway there!" : trimester === "3rd" ? "Final stretch!" : "Just getting started"}
+            Week {Math.round(weeksPregnant)} ·{" "}
+            {trimester === "2nd" ? "Halfway there!" : trimester === "3rd" ? "Final stretch!" : "Just getting started"}
           </p>
         </div>
         <Link
@@ -87,11 +89,13 @@ function HomePage() {
       </div>
 
       {/* Hero */}
-      <div className="mx-4 rounded-2xl bg-[var(--rose-light)] p-5 relative overflow-hidden">
+      <div className="relative mx-4 overflow-hidden rounded-2xl bg-[var(--rose-light)] p-5">
         <div className="absolute right-[-20px] top-[-20px] h-[120px] w-[120px] rounded-full bg-[var(--rose)]/[0.08]" />
         <p className="text-xs font-medium uppercase tracking-wider text-[var(--rose)]">You are in week</p>
         <p className="font-serif text-6xl leading-none text-[var(--rose-dark)]">{Math.round(weeksPregnant)}</p>
-        <p className="mt-1 text-sm italic text-[var(--rose-dark)]">{trimester === "2nd" ? "You're halfway through your journey" : "Every week is a milestone"}</p>
+        <p className="mt-1 text-sm italic text-[var(--rose-dark)]">
+          {trimester === "2nd" ? "You're halfway through your journey" : "Every week is a milestone"}
+        </p>
         <div className="mt-4 grid grid-cols-3 gap-2">
           <div className="rounded-xl bg-white/70 p-2.5 text-center">
             <p className="text-base font-medium text-[var(--rose-dark)]">{trimester}</p>
@@ -125,7 +129,8 @@ function HomePage() {
               {baby?.length_cm ?? "16.4"} cm · ~{baby?.weight_g ?? "300"}g
             </p>
             <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink)]">
-              {baby?.fact ?? "Your baby can hear your voice and is developing eyebrows and eyelashes this week!"}
+              {baby?.fact ??
+                "Your baby can hear your voice and is developing eyebrows and eyelashes this week!"}
             </p>
           </div>
         </div>
@@ -145,7 +150,7 @@ function HomePage() {
               key={i}
               className="flex items-start gap-2.5 rounded-xl border border-[var(--bloom-border)] bg-white p-3 text-sm leading-relaxed text-[var(--ink)]"
             >
-              <span className="text-xl shrink-0">{tip.icon}</span>
+              <span className="shrink-0 text-xl">{tip.icon}</span>
               <span>{tip.text}</span>
             </div>
           ))}
@@ -161,10 +166,10 @@ function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {products.map((product) => (
+          {products.map((product: { id: string; name: string; emoji: string; price_cents: number; rating: number; review_count: number }) => (
             <div
               key={product.id}
-              className="rounded-2xl border border-[var(--bloom-border)] bg-white overflow-hidden"
+              className="overflow-hidden rounded-2xl border border-[var(--bloom-border)] bg-white"
             >
               <div className="flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
                 {product.emoji}
