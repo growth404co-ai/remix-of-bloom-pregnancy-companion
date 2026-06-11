@@ -17,7 +17,7 @@ export const getTrackerLogs = createServerFn({ method: "GET" })
 export const createTrackerLog = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: { log_type: string; value?: Record<string, unknown>; note?: string }) => input,
+    (input: { log_type: string; value?: unknown; note?: string }) => input,
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -25,7 +25,7 @@ export const createTrackerLog = createServerFn({ method: "POST" })
       .insert({
         user_id: context.userId,
         log_type: data.log_type,
-        value: data.value ?? {},
+        value: data.value as Record<string, unknown>,
         note: data.note,
       })
       .select()
