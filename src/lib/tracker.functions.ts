@@ -25,7 +25,7 @@ export const createTrackerLog = createServerFn({ method: "POST" })
       .insert({
         user_id: context.userId,
         log_type: data.log_type,
-        value: data.value as Record<string, unknown>,
+        value: data.value as any,
         note: data.note,
       })
       .select()
