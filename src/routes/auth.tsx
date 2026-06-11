@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Flower2, Mail, Lock, Chrome } from "lucide-react";
+import { Flower2, Mail, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
