@@ -14,7 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      baby_weeks: {
+        Row: {
+          fact: string
+          fruit_emoji: string
+          id: string
+          length_cm: number
+          size_name: string
+          week: number
+          weight_g: number
+        }
+        Insert: {
+          fact: string
+          fruit_emoji: string
+          id?: string
+          length_cm: number
+          size_name: string
+          week: number
+          weight_g: number
+        }
+        Update: {
+          fact?: string
+          fruit_emoji?: string
+          id?: string
+          length_cm?: number
+          size_name?: string
+          week?: number
+          weight_g?: number
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          status: string
+          stripe_session_id: string
+          total_cents: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: Json
+          status?: string
+          stripe_session_id: string
+          total_cents: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          status?: string
+          stripe_session_id?: string
+          total_cents?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          description: string | null
+          emoji: string
+          id: string
+          name: string
+          price_cents: number
+          rating: number
+          review_count: number
+          stripe_price_id: string | null
+          tax_code: string | null
+        }
+        Insert: {
+          category: string
+          description?: string | null
+          emoji: string
+          id?: string
+          name: string
+          price_cents: number
+          rating?: number
+          review_count?: number
+          stripe_price_id?: string | null
+          tax_code?: string | null
+        }
+        Update: {
+          category?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          name?: string
+          price_cents?: number
+          rating?: number
+          review_count?: number
+          stripe_price_id?: string | null
+          tax_code?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          due_date: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          due_date?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          due_date?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      tracker_logs: {
+        Row: {
+          id: string
+          log_type: string
+          logged_at: string
+          note: string | null
+          user_id: string
+          value: Json | null
+        }
+        Insert: {
+          id?: string
+          log_type: string
+          logged_at?: string
+          note?: string | null
+          user_id: string
+          value?: Json | null
+        }
+        Update: {
+          id?: string
+          log_type?: string
+          logged_at?: string
+          note?: string | null
+          user_id?: string
+          value?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
