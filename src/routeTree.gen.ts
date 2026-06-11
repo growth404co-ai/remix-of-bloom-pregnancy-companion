@@ -13,7 +13,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedTrackerRouteImport } from './routes/_authenticated/tracker'
+import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
+import { Route as AuthenticatedLogTypeRouteImport } from './routes/_authenticated/log.$type'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,44 +38,96 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTrackerRoute = AuthenticatedTrackerRouteImport.update({
+  id: '/tracker',
+  path: '/tracker',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLogTypeRoute = AuthenticatedLogTypeRouteImport.update({
+  id: '/log/$type',
+  path: '/log/$type',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/shop': typeof AuthenticatedShopRoute
+  '/tracker': typeof AuthenticatedTrackerRoute
   '/api/chat': typeof ApiChatRoute
+  '/log/$type': typeof AuthenticatedLogTypeRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/shop': typeof AuthenticatedShopRoute
+  '/tracker': typeof AuthenticatedTrackerRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
+  '/log/$type': typeof AuthenticatedLogTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/shop': typeof AuthenticatedShopRoute
+  '/_authenticated/tracker': typeof AuthenticatedTrackerRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/log/$type': typeof AuthenticatedLogTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/onboarding' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/cart'
+    | '/onboarding'
+    | '/shop'
+    | '/tracker'
+    | '/api/chat'
+    | '/log/$type'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/onboarding' | '/api/chat' | '/'
+  to:
+    | '/auth'
+    | '/cart'
+    | '/onboarding'
+    | '/shop'
+    | '/tracker'
+    | '/api/chat'
+    | '/'
+    | '/log/$type'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/cart'
     | '/_authenticated/onboarding'
+    | '/_authenticated/shop'
+    | '/_authenticated/tracker'
     | '/api/chat'
     | '/_authenticated/'
+    | '/_authenticated/log/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -110,6 +166,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/tracker': {
+      id: '/_authenticated/tracker'
+      path: '/tracker'
+      fullPath: '/tracker'
+      preLoaderRoute: typeof AuthenticatedTrackerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shop': {
+      id: '/_authenticated/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof AuthenticatedShopRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -117,17 +187,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cart': {
+      id: '/_authenticated/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof AuthenticatedCartRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/log/$type': {
+      id: '/_authenticated/log/$type'
+      path: '/log/$type'
+      fullPath: '/log/$type'
+      preLoaderRoute: typeof AuthenticatedLogTypeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedShopRoute: typeof AuthenticatedShopRoute
+  AuthenticatedTrackerRoute: typeof AuthenticatedTrackerRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedLogTypeRoute: typeof AuthenticatedLogTypeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedShopRoute: AuthenticatedShopRoute,
+  AuthenticatedTrackerRoute: AuthenticatedTrackerRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedLogTypeRoute: AuthenticatedLogTypeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -141,3 +233,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
