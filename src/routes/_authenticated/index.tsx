@@ -33,12 +33,6 @@ export const Route = createFileRoute("/_authenticated/")({
       { name: "description", content: "Your weekly pregnancy dashboard" },
     ],
   }),
-  beforeLoad: async ({ context }) => {
-    const profile = await context.queryClient.ensureQueryData(profileQuery());
-    if (!profile?.profile?.due_date) {
-      throw redirect({ to: "/onboarding" });
-    }
-  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(profileQuery());
   },
