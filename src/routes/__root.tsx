@@ -77,14 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Bloom — Pregnancy Tracker" },
+      { name: "description", content: "Track your pregnancy week by week with Bloom. Get tips, track symptoms, shop essentials, and chat with Bloom AI." },
+      { name: "author", content: "Bloom" },
+      { property: "og:title", content: "Bloom — Pregnancy Tracker" },
+      { property: "og:description", content: "Track your pregnancy week by week with Bloom." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@Bloom" },
     ],
     links: [
       {
@@ -118,7 +118,6 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );
