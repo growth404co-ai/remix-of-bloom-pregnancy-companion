@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getProfile } from "@/lib/profiles.functions";
 import { getOrders } from "@/lib/shop.functions";
+import { getSavedIds } from "@/lib/saved.functions";
+import { getUnreadCount } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
 import {
@@ -18,16 +19,13 @@ import {
 } from "lucide-react";
 
 const profileQuery = () =>
-  queryOptions({
-    queryKey: ["profile"],
-    queryFn: () => getProfile(),
-  });
-
+  queryOptions({ queryKey: ["profile"], queryFn: () => getProfile() });
 const ordersQuery = () =>
-  queryOptions({
-    queryKey: ["orders"],
-    queryFn: () => getOrders(),
-  });
+  queryOptions({ queryKey: ["orders"], queryFn: () => getOrders() });
+const savedIdsQuery = () =>
+  queryOptions({ queryKey: ["saved-ids"], queryFn: () => getSavedIds() });
+const unreadQuery = () =>
+  queryOptions({ queryKey: ["notifications-unread"], queryFn: () => getUnreadCount() });
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -37,21 +35,15 @@ export const Route = createFileRoute("/_authenticated/profile")({
     ],
   }),
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(profileQuery());
-    await context.queryClient.ensureQueryData(ordersQuery());
+    await Promise.all([
+      context.queryClient.ensureQueryData(profileQuery()),
+      context.queryClient.ensureQueryData(ordersQuery()),
+      context.queryClient.ensureQueryData(savedIdsQuery()),
+      context.queryClient.ensureQueryData(unreadQuery()),
+    ]);
   },
   component: ProfilePage,
 });
-
-const menuItems = [
-  { icon: Calendar, label: "Appointments", badge: 0 },
-  { icon: Heart, label: "Saved products", badge: 3 },
-  { icon: Package, label: "My orders", badge: 0 },
-  { icon: Users, label: "Community", badge: 0 },
-  { icon: Bell, label: "Notifications", badge: 0 },
-  { icon: Shield, label: "Privacy & security", badge: 0 },
-  { icon: Sparkles, label: "Ask AI anything", badge: 0 },
-];
 
 function ProfilePage() {
   const { data: profileData } = useSuspenseQuery(profileQuery());
