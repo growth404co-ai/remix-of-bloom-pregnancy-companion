@@ -2,8 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { createOrder } from "@/lib/shop.functions";
+import { createNotification } from "@/lib/notifications.functions";
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/cart")({
   head: () => ({
@@ -17,12 +20,14 @@ export const Route = createFileRoute("/_authenticated/cart")({
 
 function CartPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const items = useCart((s) => s.items);
   const updateQuantity = useCart((s) => s.updateQuantity);
   const removeItem = useCart((s) => s.removeItem);
   const clearCart = useCart((s) => s.clearCart);
   const totalCents = useCart((s) => s.totalCents());
   const createOrderFn = useServerFn(createOrder);
+  const notify = useServerFn(createNotification);
   const [checkingOut, setCheckingOut] = useState(false);
 
   const handleCheckout = async () => {
@@ -35,10 +40,21 @@ function CartPage() {
           total_cents: totalCents,
         },
       });
+      await notify({
+        data: {
+          title: "Order confirmed 🎉",
+          body: `Your order of $${(totalCents / 100).toFixed(2)} is on its way.`,
+          type: "order",
+        },
+      });
       clearCart();
-      navigate({ to: "/shop" });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+      qc.invalidateQueries({ queryKey: ["notifications-unread"] });
+      toast.success("Order placed!");
+      navigate({ to: "/orders" });
     } catch {
-      // ignore
+      toast.error("Checkout failed. Try again.");
     } finally {
       setCheckingOut(false);
     }
