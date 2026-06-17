@@ -1,16 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getProducts } from "@/lib/products.functions";
+import { getSavedIds, toggleSavedProduct } from "@/lib/saved.functions";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
-import { Plus, ShoppingCart } from "lucide-react";
+import { Heart, Plus, ShoppingCart } from "lucide-react";
 
 const productsQuery = () =>
   queryOptions({
     queryKey: ["products"],
     queryFn: () => getProducts(),
   });
+
+const savedIdsQuery = () =>
+  queryOptions({ queryKey: ["saved-ids"], queryFn: () => getSavedIds() });
 
 const categories = ["All", "Vitamins", "Clothing", "Skincare", "Baby gear"];
 
