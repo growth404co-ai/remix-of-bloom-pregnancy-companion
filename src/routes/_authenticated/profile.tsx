@@ -111,10 +111,7 @@ function ProfilePage() {
           <button
             key={item.label}
             onClick={() => {
-              if (item.label === "Ask AI anything") {
-                navigate({ to: "/ask" });
-              }
-              // Others are coming soon — no-op for now
+              if (item.to) navigate({ to: item.to });
             }}
             className="mb-2 flex w-full items-center gap-3 rounded-xl border border-[var(--bloom-border)] bg-white px-4 py-3.5 text-left"
           >
