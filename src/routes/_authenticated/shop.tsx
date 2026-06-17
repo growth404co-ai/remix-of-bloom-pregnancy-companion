@@ -98,8 +98,21 @@ function ShopPage() {
             key={product.id}
             className="overflow-hidden rounded-2xl border border-[var(--bloom-border)] bg-white"
           >
-            <div className="flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
+            <div className="relative flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
               {product.emoji}
+              <button
+                onClick={() => handleToggleSave(product.id)}
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm"
+                aria-label={savedIds.has(product.id) ? "Unsave" : "Save"}
+              >
+                <Heart
+                  className={`h-4 w-4 ${
+                    savedIds.has(product.id)
+                      ? "fill-[var(--rose)] text-[var(--rose)]"
+                      : "text-[var(--bloom-muted)]"
+                  }`}
+                />
+              </button>
             </div>
             <div className="p-2.5 pb-3">
               <p className="text-[13px] font-medium text-[var(--ink)]">{product.name}</p>
