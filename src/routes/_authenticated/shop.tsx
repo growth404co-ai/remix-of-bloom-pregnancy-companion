@@ -26,17 +26,30 @@ export const Route = createFileRoute("/_authenticated/shop")({
     ],
   }),
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(productsQuery());
+    await Promise.all([
+      context.queryClient.ensureQueryData(productsQuery()),
+      context.queryClient.ensureQueryData(savedIdsQuery()),
+    ]);
   },
   component: ShopPage,
 });
 
 function ShopPage() {
   const { data } = useSuspenseQuery(productsQuery());
+  const { data: savedData } = useSuspenseQuery(savedIdsQuery());
+  const savedIds = new Set(savedData?.ids ?? []);
   const products = data?.products ?? [];
   const [activeCategory, setActiveCategory] = useState("All");
   const addItem = useCart((s) => s.addItem);
   const totalItems = useCart((s) => s.totalItems());
+  const qc = useQueryClient();
+  const toggle = useServerFn(toggleSavedProduct);
+
+  const handleToggleSave = async (productId: string) => {
+    await toggle({ data: { product_id: productId } });
+    qc.invalidateQueries({ queryKey: ["saved-ids"] });
+    qc.invalidateQueries({ queryKey: ["saved-products"] });
+  };
 
   const filtered =
     activeCategory === "All"
