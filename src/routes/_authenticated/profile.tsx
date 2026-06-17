@@ -45,10 +45,30 @@ export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
 });
 
+type MenuItem = {
+  icon: typeof Calendar;
+  label: string;
+  badge: number;
+  to?: "/orders" | "/saved" | "/notifications" | "/ask";
+};
+
 function ProfilePage() {
   const { data: profileData } = useSuspenseQuery(profileQuery());
+  const { data: ordersData } = useSuspenseQuery(ordersQuery());
+  const { data: savedData } = useSuspenseQuery(savedIdsQuery());
+  const { data: unreadData } = useSuspenseQuery(unreadQuery());
   const profile = profileData?.profile;
   const navigate = useNavigate();
+
+  const menuItems: MenuItem[] = [
+    { icon: Calendar, label: "Appointments", badge: 0 },
+    { icon: Heart, label: "Saved products", badge: savedData?.ids.length ?? 0, to: "/saved" },
+    { icon: Package, label: "My orders", badge: ordersData?.orders.length ?? 0, to: "/orders" },
+    { icon: Users, label: "Community", badge: 0 },
+    { icon: Bell, label: "Notifications", badge: unreadData?.count ?? 0, to: "/notifications" },
+    { icon: Shield, label: "Privacy & security", badge: 0 },
+    { icon: Sparkles, label: "Ask AI anything", badge: 0, to: "/ask" },
+  ];
 
   const dueDate = profile?.due_date ? new Date(profile.due_date) : null;
   const now = new Date();
