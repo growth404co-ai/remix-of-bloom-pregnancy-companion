@@ -58,8 +58,14 @@ function HomePage() {
   const baby = weekData?.week;
 
   const { data: productsData } = useSuspenseQuery(productsQuery());
-  const products = (productsData?.products ?? []).slice(0, 6);
+  const allProducts = productsData?.products ?? [];
+  const currentTrimester = weeksPregnant <= 12 ? 1 : weeksPregnant <= 27 ? 2 : 3;
+  const curated = allProducts.filter((p: { trimesters?: number[] | null }) =>
+    p.trimesters?.includes(currentTrimester),
+  );
+  const products = (curated.length > 0 ? curated : allProducts).slice(0, 6);
   const addItem = useCart((s) => s.addItem);
+
 
   const tips = [
     { icon: "💧", text: "Drink 8–10 glasses of water. Staying hydrated helps with common second-trimester symptoms." },
