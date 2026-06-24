@@ -166,11 +166,14 @@ function HomePage() {
       {/* Shop */}
       <div className="mt-5 px-4">
         <div className="mb-2.5 flex items-center justify-between">
-          <h2 className="font-serif text-lg text-[var(--ink)]">Shop</h2>
+          <h2 className="font-serif text-lg text-[var(--ink)]">
+            Picks for your {trimester} trimester
+          </h2>
           <Link to="/shop" className="text-xs font-medium text-[var(--rose)]">
             See all
           </Link>
         </div>
+
         <div className="grid grid-cols-2 gap-3">
           {products.map((product: { id: string; name: string; emoji: string; price_cents: number; rating: number; review_count: number }) => (
             <div
