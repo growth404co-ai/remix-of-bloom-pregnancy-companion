@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { Link, useNavigate } from "@tanstack/react-router";
 import { Flower2, Mail, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
@@ -22,6 +21,15 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (data.user) navigate({ to: "/" });
+      })
+      .catch(() => {});
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +63,10 @@ function AuthPage() {
     });
     if (result.error) {
       setError(result.error instanceof Error ? result.error.message : "Google sign-in failed");
+      return;
+    }
+    if (!result.redirected) {
+      navigate({ to: "/" });
     }
   };
 
@@ -137,7 +149,7 @@ function AuthPage() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Continue with Google
+          Sign in with Google
         </button>
 
         <p className="mt-6 text-center text-xs text-[var(--bloom-muted)]">
