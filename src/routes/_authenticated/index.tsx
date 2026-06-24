@@ -58,8 +58,14 @@ function HomePage() {
   const baby = weekData?.week;
 
   const { data: productsData } = useSuspenseQuery(productsQuery());
-  const products = (productsData?.products ?? []).slice(0, 6);
+  const allProducts = productsData?.products ?? [];
+  const currentTrimester = weeksPregnant <= 12 ? 1 : weeksPregnant <= 27 ? 2 : 3;
+  const curated = allProducts.filter((p: { trimesters?: number[] | null }) =>
+    p.trimesters?.includes(currentTrimester),
+  );
+  const products = (curated.length > 0 ? curated : allProducts).slice(0, 6);
   const addItem = useCart((s) => s.addItem);
+
 
   const tips = [
     { icon: "💧", text: "Drink 8–10 glasses of water. Staying hydrated helps with common second-trimester symptoms." },
@@ -160,28 +166,35 @@ function HomePage() {
       {/* Shop */}
       <div className="mt-5 px-4">
         <div className="mb-2.5 flex items-center justify-between">
-          <h2 className="font-serif text-lg text-[var(--ink)]">Shop</h2>
+          <h2 className="font-serif text-lg text-[var(--ink)]">
+            Picks for your {trimester} trimester
+          </h2>
           <Link to="/shop" className="text-xs font-medium text-[var(--rose)]">
             See all
           </Link>
         </div>
+
         <div className="grid grid-cols-2 gap-3">
           {products.map((product: { id: string; name: string; emoji: string; price_cents: number; rating: number; review_count: number }) => (
             <div
               key={product.id}
               className="overflow-hidden rounded-2xl border border-[var(--bloom-border)] bg-white"
             >
-              <div className="flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
-                {product.emoji}
-              </div>
-              <div className="p-2.5 pb-3">
-                <p className="text-[13px] font-medium text-[var(--ink)]">{product.name}</p>
-                <p className="text-[15px] font-medium text-[var(--rose)]">
-                  ${(product.price_cents / 100).toFixed(2)}
-                </p>
-                <p className="text-[11px] text-[var(--bloom-muted)]">
-                  ⭐ {product.rating} · {product.review_count} reviews
-                </p>
+              <Link to="/product/$id" params={{ id: product.id }} className="block">
+                <div className="flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
+                  {product.emoji}
+                </div>
+                <div className="p-2.5 pb-1">
+                  <p className="text-[13px] font-medium text-[var(--ink)]">{product.name}</p>
+                  <p className="text-[15px] font-medium text-[var(--rose)]">
+                    ${(product.price_cents / 100).toFixed(2)}
+                  </p>
+                  <p className="text-[11px] text-[var(--bloom-muted)]">
+                    ⭐ {product.rating} · {product.review_count} reviews
+                  </p>
+                </div>
+              </Link>
+              <div className="px-2.5 pb-3">
                 <button
                   onClick={() =>
                     addItem({
@@ -191,12 +204,14 @@ function HomePage() {
                       price_cents: product.price_cents,
                     })
                   }
-                  className="mt-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--rose)] text-white"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--rose)] text-white"
+                  aria-label="Add to cart"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
             </div>
+
           ))}
         </div>
       </div>
