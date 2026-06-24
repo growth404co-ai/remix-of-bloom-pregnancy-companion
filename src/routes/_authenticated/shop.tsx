@@ -98,30 +98,42 @@ function ShopPage() {
             key={product.id}
             className="overflow-hidden rounded-2xl border border-[var(--bloom-border)] bg-white"
           >
-            <div className="relative flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
-              {product.emoji}
-              <button
-                onClick={() => handleToggleSave(product.id)}
-                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm"
-                aria-label={savedIds.has(product.id) ? "Unsave" : "Save"}
-              >
-                <Heart
-                  className={`h-4 w-4 ${
-                    savedIds.has(product.id)
-                      ? "fill-[var(--rose)] text-[var(--rose)]"
-                      : "text-[var(--bloom-muted)]"
-                  }`}
-                />
-              </button>
-            </div>
-            <div className="p-2.5 pb-3">
-              <p className="text-[13px] font-medium text-[var(--ink)]">{product.name}</p>
-              <p className="text-[15px] font-medium text-[var(--rose)]">
-                ${(product.price_cents / 100).toFixed(2)}
-              </p>
-              <p className="text-[11px] text-[var(--bloom-muted)]">
-                ⭐ {product.rating} · {product.review_count} reviews
-              </p>
+            <Link
+              to="/product/$id"
+              params={{ id: product.id }}
+              className="block"
+            >
+              <div className="relative flex h-[100px] items-center justify-center bg-[var(--rose-light)] text-4xl">
+                {product.emoji}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleToggleSave(product.id);
+                  }}
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm"
+                  aria-label={savedIds.has(product.id) ? "Unsave" : "Save"}
+                >
+                  <Heart
+                    className={`h-4 w-4 ${
+                      savedIds.has(product.id)
+                        ? "fill-[var(--rose)] text-[var(--rose)]"
+                        : "text-[var(--bloom-muted)]"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="p-2.5 pb-3">
+                <p className="text-[13px] font-medium text-[var(--ink)]">{product.name}</p>
+                <p className="text-[15px] font-medium text-[var(--rose)]">
+                  ${(product.price_cents / 100).toFixed(2)}
+                </p>
+                <p className="text-[11px] text-[var(--bloom-muted)]">
+                  ⭐ {product.rating} · {product.review_count} reviews
+                </p>
+              </div>
+            </Link>
+            <div className="px-2.5 pb-3">
               <button
                 onClick={() =>
                   addItem({
@@ -131,12 +143,14 @@ function ShopPage() {
                     price_cents: product.price_cents,
                   })
                 }
-                className="mt-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--rose)] text-white"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--rose)] text-white"
+                aria-label="Add to cart"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </div>
           </div>
+
         ))}
       </div>
 
