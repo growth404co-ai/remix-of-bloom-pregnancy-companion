@@ -106,6 +106,7 @@ export type Database = {
       }
       products: {
         Row: {
+          benefits: string[]
           category: string
           description: string | null
           emoji: string
@@ -116,8 +117,10 @@ export type Database = {
           review_count: number
           stripe_price_id: string | null
           tax_code: string | null
+          trimesters: number[]
         }
         Insert: {
+          benefits?: string[]
           category: string
           description?: string | null
           emoji: string
@@ -128,8 +131,10 @@ export type Database = {
           review_count?: number
           stripe_price_id?: string | null
           tax_code?: string | null
+          trimesters?: number[]
         }
         Update: {
+          benefits?: string[]
           category?: string
           description?: string | null
           emoji?: string
@@ -140,6 +145,7 @@ export type Database = {
           review_count?: number
           stripe_price_id?: string | null
           tax_code?: string | null
+          trimesters?: number[]
         }
         Relationships: []
       }
