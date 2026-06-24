@@ -17,15 +17,13 @@ const savedIdsQuery = () =>
   queryOptions({ queryKey: ["saved-ids"], queryFn: () => getSavedIds() });
 
 export const Route = createFileRoute("/_authenticated/product/$id")({
-  head: ({ loaderData }) => ({
+  head: () => ({
     meta: [
-      { title: `${loaderData?.product?.name ?? "Product"} — Bloom` },
-      {
-        name: "description",
-        content: loaderData?.product?.description ?? "Pregnancy essentials.",
-      },
+      { title: "Product — Bloom" },
+      { name: "description", content: "Pregnancy essentials." },
     ],
   }),
+
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(productQuery(params.id));
     if (!data?.product) throw notFound();
