@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getNotifications = createServerFn({ method: "GET" })
@@ -40,7 +41,15 @@ export const markAllRead = createServerFn({ method: "POST" })
 
 export const createNotification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { title: string; body?: string; type?: string }) => input)
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        title: z.string().trim().min(1).max(200),
+        body: z.string().trim().max(2000).optional(),
+        type: z.enum(["info", "welcome", "order", "reminder", "alert"]).optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("notifications").insert({
       user_id: context.userId,
