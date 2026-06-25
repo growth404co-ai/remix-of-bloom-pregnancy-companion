@@ -16,7 +16,11 @@ import {
   Sparkles,
   ChevronRight,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
+
 
 const profileQuery = () =>
   queryOptions({ queryKey: ["profile"], queryFn: () => getProfile() });
