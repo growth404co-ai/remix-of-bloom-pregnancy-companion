@@ -131,6 +131,13 @@ function ProfilePage() {
         ))}
       </div>
 
+      <div className="mt-4 px-4">
+        <p className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-[var(--bloom-muted)]">
+          Appearance
+        </p>
+        <ThemeCard currentTrimester={trimester} />
+      </div>
+
       <div className="mt-2 px-4">
         <button
           onClick={handleSignOut}
@@ -145,3 +152,81 @@ function ProfilePage() {
     </div>
   );
 }
+
+function ThemeCard({ currentTrimester }: { currentTrimester: "1st" | "2nd" | "3rd" }) {
+  const mode = useTheme((s) => s.mode);
+  const toggleMode = useTheme((s) => s.toggleMode);
+  const trimesterTheme = useTheme((s) => s.trimesterTheme);
+  const setTrimesterTheme = useTheme((s) => s.setTrimesterTheme);
+
+  const options: { value: TrimesterTheme; label: string; hint: string }[] = [
+    { value: "auto", label: "Auto", hint: `Now: ${currentTrimester}` },
+    { value: "1", label: "Blush", hint: "1st · fresh" },
+    { value: "2", label: "Sage", hint: "2nd · calm" },
+    { value: "3", label: "Lavender", hint: "3rd · cozy" },
+  ];
+
+  return (
+    <div className="rounded-xl border border-[var(--bloom-border)] bg-white p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {mode === "dark" ? (
+            <Moon className="h-5 w-5 text-[var(--rose)]" />
+          ) : (
+            <Sun className="h-5 w-5 text-[var(--rose)]" />
+          )}
+          <div>
+            <p className="text-sm font-medium text-[var(--ink)]">Dark mode</p>
+            <p className="text-xs text-[var(--bloom-muted)]">
+              Easier on the eyes at night
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={toggleMode}
+          aria-pressed={mode === "dark"}
+          aria-label="Toggle dark mode"
+          className={`relative h-6 w-11 rounded-full transition-colors ${
+            mode === "dark" ? "bg-[var(--rose)]" : "bg-[var(--bloom-border)]"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              mode === "dark" ? "translate-x-[22px]" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
+      <div className="mt-4">
+        <p className="mb-2 text-xs font-medium text-[var(--ink)]">Trimester mood</p>
+        <div className="grid grid-cols-2 gap-2">
+          {options.map((opt) => {
+            const active = trimesterTheme === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setTrimesterTheme(opt.value)}
+                className={`rounded-lg border px-3 py-2 text-left transition-colors ${
+                  active
+                    ? "border-[var(--rose)] bg-[var(--rose-light)]"
+                    : "border-[var(--bloom-border)] bg-white"
+                }`}
+              >
+                <p
+                  className={`text-sm font-medium ${
+                    active ? "text-[var(--rose-dark)]" : "text-[var(--ink)]"
+                  }`}
+                >
+                  {opt.label}
+                </p>
+                <p className="text-[11px] text-[var(--bloom-muted)]">{opt.hint}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
