@@ -30,11 +30,14 @@ export const Route = createFileRoute("/_authenticated/product/$id")({
     await context.queryClient.ensureQueryData(savedIdsQuery());
     return { product: data.product };
   },
-  errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-[var(--bloom-muted)]">
-      Couldn't load product. {error.message}
-    </div>
-  ),
+  errorComponent: ({ error }) => {
+    console.error("Product load error:", error);
+    return (
+      <div className="p-6 text-sm text-[var(--bloom-muted)]">
+        Couldn't load product. Please try again.
+      </div>
+    );
+  },
   notFoundComponent: () => (
     <div className="p-6 text-sm text-[var(--bloom-muted)]">Product not found.</div>
   ),
