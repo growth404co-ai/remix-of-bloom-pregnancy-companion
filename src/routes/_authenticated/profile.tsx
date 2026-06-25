@@ -18,6 +18,7 @@ import {
   LogOut,
   Moon,
   Sun,
+  Settings,
 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
 
@@ -53,7 +54,7 @@ type MenuItem = {
   icon: typeof Calendar;
   label: string;
   badge: number;
-  to?: "/orders" | "/saved" | "/notifications" | "/ask";
+  to?: "/orders" | "/saved" | "/notifications" | "/ask" | "/settings";
 };
 
 function ProfilePage() {
@@ -65,6 +66,7 @@ function ProfilePage() {
   const navigate = useNavigate();
 
   const menuItems: MenuItem[] = [
+    { icon: Settings, label: "Settings", badge: 0, to: "/settings" },
     { icon: Calendar, label: "Appointments", badge: 0 },
     { icon: Heart, label: "Saved products", badge: savedData?.ids.length ?? 0, to: "/saved" },
     { icon: Package, label: "My orders", badge: ordersData?.orders.length ?? 0, to: "/orders" },
