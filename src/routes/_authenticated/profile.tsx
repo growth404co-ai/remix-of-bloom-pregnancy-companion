@@ -54,7 +54,7 @@ type MenuItem = {
   icon: typeof Calendar;
   label: string;
   badge: number;
-  to?: "/orders" | "/saved" | "/notifications" | "/ask" | "/settings";
+  to?: "/orders" | "/saved" | "/notifications" | "/ask" | "/settings" | "/appointments";
 };
 
 function ProfilePage() {
