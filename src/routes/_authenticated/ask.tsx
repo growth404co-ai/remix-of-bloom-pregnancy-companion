@@ -4,6 +4,8 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const chatTransport = new DefaultChatTransport({ api: "/api/chat" });
 
