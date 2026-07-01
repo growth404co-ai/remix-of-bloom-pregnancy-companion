@@ -233,6 +233,7 @@ function LogPage() {
             <input
               type="datetime-local"
               value={apptDate}
+              min={new Date().toISOString().slice(0, 16)}
               onChange={(e) => setApptDate(e.target.value)}
               className="w-full rounded-xl border border-[var(--bloom-border)] bg-white py-3 px-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)]"
             />
