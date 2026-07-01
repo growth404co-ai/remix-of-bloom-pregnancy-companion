@@ -1,8 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { createTrackerLog } from "@/lib/tracker.functions";
-import { ArrowLeft, Save } from "lucide-react";
+import { createNotification } from "@/lib/notifications.functions";
+import { suggestMoodRemedy } from "@/lib/mood.functions";
+import { ArrowLeft, Save, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/_authenticated/log/$type")({
   head: () => ({
@@ -29,12 +34,20 @@ const symptomsList = [
 function LogPage() {
   const { type } = Route.useParams();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const saveLog = useServerFn(createTrackerLog);
+  const notify = useServerFn(createNotification);
+  const askRemedy = useServerFn(suggestMoodRemedy);
+
   const [note, setNote] = useState("");
   const [mood, setMood] = useState("");
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [weight, setWeight] = useState("");
   const [kickCount, setKickCount] = useState(0);
+  const [apptTitle, setApptTitle] = useState("");
+  const [apptDate, setApptDate] = useState("");
+  const [remedy, setRemedy] = useState<string | null>(null);
+  const [remedyLoading, setRemedyLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const toggleSymptom = (s: string) => {
@@ -48,10 +61,68 @@ function LogPage() {
     if (type === "symptom") value = { symptoms };
     if (type === "weight") value = { weight: parseFloat(weight) || 0 };
     if (type === "kick") value = { count: kickCount };
+    if (type === "appointment") value = { title: apptTitle, date: apptDate };
 
     try {
       await saveLog({ data: { log_type: type, value, note } });
-      navigate({ to: "/tracker" });
+
+      if (type === "appointment" && apptDate) {
+        const when = new Date(apptDate);
+        await notify({
+          data: {
+            title: `Reminder: ${apptTitle || "Appointment"}`,
+            body: `Scheduled for ${when.toLocaleString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}`,
+            type: "reminder",
+          },
+        });
+        // Ask browser permission and schedule an in-app reminder if page open
+        if (typeof window !== "undefined" && "Notification" in window) {
+          if (Notification.permission === "default") {
+            try { await Notification.requestPermission(); } catch { /* ignore */ }
+          }
+          const msUntil = when.getTime() - Date.now();
+          if (msUntil > 0 && msUntil < 2_147_000_000) {
+            setTimeout(() => {
+              if (Notification.permission === "granted") {
+                new Notification("Appointment reminder", {
+                  body: `${apptTitle || "Appointment"} is starting soon`,
+                });
+              }
+            }, msUntil);
+          }
+        }
+      }
+
+      if (type === "mood" && mood) {
+        try {
+          setRemedyLoading(true);
+          const r = await askRemedy({ data: { mood, note } });
+          setRemedy(r.remedy);
+          await notify({
+            data: {
+              title: `Mood remedy for ${mood}`,
+              body: r.remedy.slice(0, 500),
+              type: "info",
+            },
+          });
+          await qc.invalidateQueries({ queryKey: ["notifications-unread"] });
+          setRemedyLoading(false);
+          setLoading(false);
+          return; // stay on page to show remedy
+        } catch {
+          setRemedyLoading(false);
+        }
+      }
+
+      await qc.invalidateQueries({ queryKey: ["tracker-logs"] });
+      await qc.invalidateQueries({ queryKey: ["notifications-unread"] });
+      navigate({ to: type === "appointment" ? "/appointments" : "/tracker" });
     } catch {
       // ignore
     } finally {
@@ -147,8 +218,28 @@ function LogPage() {
       )}
 
       {type === "appointment" && (
-        <div className="mb-4">
-          <p className="mb-2 text-sm font-medium text-[var(--ink)]">Appointment notes</p>
+        <div className="mb-4 space-y-3">
+          <div>
+            <p className="mb-2 text-sm font-medium text-[var(--ink)]">Title</p>
+            <input
+              value={apptTitle}
+              onChange={(e) => setApptTitle(e.target.value)}
+              placeholder="e.g. OB-GYN checkup"
+              className="w-full rounded-xl border border-[var(--bloom-border)] bg-white py-3 px-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)]"
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-[var(--ink)]">Date & time</p>
+            <input
+              type="datetime-local"
+              value={apptDate}
+              onChange={(e) => setApptDate(e.target.value)}
+              className="w-full rounded-xl border border-[var(--bloom-border)] bg-white py-3 px-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)]"
+            />
+            <p className="mt-1 text-xs text-[var(--bloom-muted)]">
+              We'll send you a reminder notification.
+            </p>
+          </div>
         </div>
       )}
 
@@ -169,6 +260,28 @@ function LogPage() {
           placeholder="Any thoughts or details..."
         />
       </div>
+
+      {(remedy || remedyLoading) && (
+        <div className="mb-4 rounded-2xl border border-[var(--rose-mid)] bg-[var(--rose-light)] p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[var(--rose-dark)]" />
+            <p className="text-sm font-medium text-[var(--rose-dark)]">Gentle remedy</p>
+          </div>
+          {remedyLoading ? (
+            <p className="text-sm italic text-[var(--bloom-muted)]">Thinking of something soothing...</p>
+          ) : (
+            <div className="prose prose-sm max-w-none text-[var(--ink)] prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{remedy || ""}</ReactMarkdown>
+            </div>
+          )}
+          <button
+            onClick={() => navigate({ to: "/tracker" })}
+            className="mt-3 text-xs font-medium text-[var(--rose-dark)] underline"
+          >
+            Done
+          </button>
+        </div>
+      )}
 
       <button
         onClick={handleSubmit}
