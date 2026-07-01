@@ -67,7 +67,7 @@ function ProfilePage() {
 
   const menuItems: MenuItem[] = [
     { icon: Settings, label: "Settings", badge: 0, to: "/settings" },
-    { icon: Calendar, label: "Appointments", badge: 0 },
+    { icon: Calendar, label: "Appointments", badge: 0, to: "/appointments" },
     { icon: Heart, label: "Saved products", badge: savedData?.ids.length ?? 0, to: "/saved" },
     { icon: Package, label: "My orders", badge: ordersData?.orders.length ?? 0, to: "/orders" },
     { icon: Users, label: "Community", badge: 0 },
