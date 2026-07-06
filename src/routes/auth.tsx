@@ -17,20 +17,29 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const goAfterAuth = async (to: "/" | "/onboarding") => {
+    queryClient.clear();
+    await router.invalidate();
+    await navigate({ to });
+  };
+
   useEffect(() => {
     supabase.auth
       .getUser()
       .then(({ data }) => {
-        if (data.user) navigate({ to: "/" });
+        if (data.user) void goAfterAuth("/");
       })
       .catch(() => {});
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +49,7 @@ function AuthPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/" });
+        await goAfterAuth("/");
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -48,7 +57,7 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        navigate({ to: "/onboarding" });
+        await goAfterAuth("/onboarding");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -67,9 +76,10 @@ function AuthPage() {
       return;
     }
     if (!result.redirected) {
-      navigate({ to: "/" });
+      await goAfterAuth("/");
     }
   };
+
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--cream)] px-4">
