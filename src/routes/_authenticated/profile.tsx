@@ -157,6 +157,24 @@ function ProfilePage() {
   );
 }
 
+function ProfileAvatar({ path, name }: { path: string | null; name?: string | null }) {
+  const url = useAvatarUrl(path);
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt="Profile"
+        className="h-14 w-14 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--rose)] font-serif text-xl text-white">
+      {(name || "U")[0]}
+    </div>
+  );
+}
+
 function ThemeCard({ currentTrimester }: { currentTrimester: "1st" | "2nd" | "3rd" }) {
   const mode = useTheme((s) => s.mode);
   const toggleMode = useTheme((s) => s.toggleMode);
