@@ -1,8 +1,10 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { updateProfile } from "@/lib/profiles.functions";
-import { Flower2, Calendar } from "lucide-react";
+import { Flower2, Calendar, Globe, Clock } from "lucide-react";
+import { LANGUAGES, TIMEZONES, detectTimezone, type LanguageCode } from "@/lib/i18n";
+import { useLocale } from "@/hooks/use-locale";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   component: OnboardingPage,
@@ -11,15 +13,23 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 function OnboardingPage() {
   const navigate = useNavigate();
   const saveProfile = useServerFn(updateProfile);
+  const setLangStore = useLocale((s) => s.setLanguage);
+  const setTzStore = useLocale((s) => s.setTimezone);
   const [displayName, setDisplayName] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [language, setLanguage] = useState<LanguageCode>("en");
+  const [timezone, setTimezone] = useState<string>(detectTimezone());
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await saveProfile({ data: { display_name: displayName, due_date: dueDate } });
+      await saveProfile({
+        data: { display_name: displayName, due_date: dueDate, language, timezone },
+      });
+      setLangStore(language);
+      setTzStore(timezone);
       navigate({ to: "/" });
     } catch {
       // ignore
@@ -61,6 +71,40 @@ function OnboardingPage() {
                 onChange={(e) => setDueDate(e.target.value)}
                 className="w-full rounded-xl border border-[var(--bloom-border)] bg-white py-3 pl-10 pr-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)] focus:ring-1 focus:ring-[var(--rose)]"
               />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[var(--ink)]">Language</label>
+            <div className="relative">
+              <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+                className="w-full appearance-none rounded-xl border border-[var(--bloom-border)] bg-white py-3 pl-10 pr-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)] focus:ring-1 focus:ring-[var(--rose)]"
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[var(--ink)]">Timezone</label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+              <select
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="w-full appearance-none rounded-xl border border-[var(--bloom-border)] bg-white py-3 pl-10 pr-4 text-sm text-[var(--ink)] outline-none focus:border-[var(--rose)] focus:ring-1 focus:ring-[var(--rose)]"
+              >
+                {(TIMEZONES.includes(timezone) ? TIMEZONES : [timezone, ...TIMEZONES]).map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz.replace(/_/g, " ")}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <button
