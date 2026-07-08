@@ -5,8 +5,10 @@ import { useState } from "react";
 import { getProfile, updateProfile } from "@/lib/profiles.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
-import { ArrowLeft, Moon, Sun, User, Mail, Lock, Calendar, Check, Palette } from "lucide-react";
+import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
+import { useLocale } from "@/hooks/use-locale";
+import { LANGUAGES, TIMEZONES, type LanguageCode } from "@/lib/i18n";
 import { toast } from "sonner";
 
 const profileQuery = () =>
