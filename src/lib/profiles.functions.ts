@@ -29,7 +29,12 @@ export const updateProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => updateProfileSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const patch: Record<string, string> = {};
+    const patch: {
+      display_name?: string;
+      due_date?: string;
+      language?: string;
+      timezone?: string;
+    } = {};
     if (data.display_name !== undefined) patch.display_name = data.display_name;
     if (data.due_date !== undefined) patch.due_date = data.due_date;
     if (data.language !== undefined) patch.language = data.language;
