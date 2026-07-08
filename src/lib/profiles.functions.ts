@@ -23,6 +23,7 @@ const updateProfileSchema = z.object({
     .optional(),
   language: z.string().trim().min(2).max(8).optional(),
   timezone: z.string().trim().min(1).max(64).optional(),
+  avatar_url: z.string().trim().max(500).nullable().optional(),
 });
 
 export const updateProfile = createServerFn({ method: "POST" })
@@ -34,11 +35,13 @@ export const updateProfile = createServerFn({ method: "POST" })
       due_date?: string;
       language?: string;
       timezone?: string;
+      avatar_url?: string | null;
     } = {};
     if (data.display_name !== undefined) patch.display_name = data.display_name;
     if (data.due_date !== undefined) patch.due_date = data.due_date;
     if (data.language !== undefined) patch.language = data.language;
     if (data.timezone !== undefined) patch.timezone = data.timezone;
+    if (data.avatar_url !== undefined) patch.avatar_url = data.avatar_url;
 
     const { data: profile, error } = await context.supabase
       .from("profiles")

@@ -5,11 +5,13 @@ import { useState } from "react";
 import { getProfile, updateProfile } from "@/lib/profiles.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
-import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock } from "lucide-react";
+import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock, Camera, Trash2 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
 import { useLocale } from "@/hooks/use-locale";
+import { useAvatarUrl } from "@/hooks/use-avatar-url";
 import { LANGUAGES, TIMEZONES, type LanguageCode } from "@/lib/i18n";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 const profileQuery = () =>
   queryOptions({ queryKey: ["profile"], queryFn: () => getProfile() });
@@ -41,6 +43,63 @@ function SettingsPage() {
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [dueDate, setDueDate] = useState(profile?.due_date ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
+
+  const avatarPath = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null;
+  const avatarUrl = useAvatarUrl(avatarPath);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Image must be under 3 MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userRes.user) throw userErr ?? new Error("Not signed in");
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${userRes.user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      if (avatarPath) {
+        await supabase.storage.from("avatars").remove([avatarPath]);
+      }
+      await updateProfileFn({ data: { avatar_url: path } });
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Profile picture updated");
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      toast.error("Couldn't upload picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!avatarPath) return;
+    setUploadingAvatar(true);
+    try {
+      await supabase.storage.from("avatars").remove([avatarPath]);
+      await updateProfileFn({ data: { avatar_url: null } });
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Profile picture removed");
+    } catch (err) {
+      console.error("Avatar remove failed:", err);
+      toast.error("Couldn't remove picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const [email, setEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
@@ -158,7 +217,52 @@ function SettingsPage() {
 
       {/* Account credentials */}
       <Section title="Account" icon={<User className="h-4 w-4" />}>
+        <div className="flex items-center gap-4">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-[var(--rose)] font-serif text-2xl text-white">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                {(displayName || profile?.display_name || "U")[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-1.5">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--bloom-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--ink)] disabled:opacity-50"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              {uploadingAvatar ? "Uploading…" : avatarPath ? "Change photo" : "Upload photo"}
+            </button>
+            {avatarPath && (
+              <button
+                type="button"
+                onClick={handleAvatarRemove}
+                disabled={uploadingAvatar}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--bloom-muted)] disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
         <Field label="Display name">
+
           <input
             type="text"
             value={displayName}

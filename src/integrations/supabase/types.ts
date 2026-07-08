@@ -151,6 +151,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           display_name: string | null
           due_date: string | null
@@ -159,6 +160,7 @@ export type Database = {
           timezone: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           due_date?: string | null
@@ -167,6 +169,7 @@ export type Database = {
           timezone?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           due_date?: string | null

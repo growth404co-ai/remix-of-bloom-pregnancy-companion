@@ -21,6 +21,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
+import { useAvatarUrl } from "@/hooks/use-avatar-url";
 
 
 const profileQuery = () =>
@@ -97,9 +98,10 @@ function ProfilePage() {
       {/* Profile hero */}
       <div className="mx-4 rounded-2xl bg-[var(--rose-light)] p-5">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--rose)] font-serif text-xl text-white">
-            {(profile?.display_name || "U")[0]}
-          </div>
+          <ProfileAvatar
+            path={(profile as { avatar_url?: string | null } | undefined)?.avatar_url ?? null}
+            name={profile?.display_name}
+          />
           <div>
             <p className="text-[17px] font-medium text-[var(--ink)]">
               {profile?.display_name || "User"}
@@ -151,6 +153,24 @@ function ProfilePage() {
       </div>
 
       <div className="h-6" />
+    </div>
+  );
+}
+
+function ProfileAvatar({ path, name }: { path: string | null; name?: string | null }) {
+  const url = useAvatarUrl(path);
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt="Profile"
+        className="h-14 w-14 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--rose)] font-serif text-xl text-white">
+      {(name || "U")[0]}
     </div>
   );
 }
