@@ -5,11 +5,13 @@ import { useState } from "react";
 import { getProfile, updateProfile } from "@/lib/profiles.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
-import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock } from "lucide-react";
+import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock, Camera, Trash2 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
 import { useLocale } from "@/hooks/use-locale";
+import { useAvatarUrl } from "@/hooks/use-avatar-url";
 import { LANGUAGES, TIMEZONES, type LanguageCode } from "@/lib/i18n";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 const profileQuery = () =>
   queryOptions({ queryKey: ["profile"], queryFn: () => getProfile() });
