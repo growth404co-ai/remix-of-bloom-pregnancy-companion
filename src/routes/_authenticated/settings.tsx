@@ -49,6 +49,34 @@ function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
 
+  const localeLang = useLocale((s) => s.language);
+  const localeTz = useLocale((s) => s.timezone);
+  const setLocaleLang = useLocale((s) => s.setLanguage);
+  const setLocaleTz = useLocale((s) => s.setTimezone);
+  const [language, setLanguage] = useState<LanguageCode>(
+    ((profile as { language?: string } | null)?.language as LanguageCode) ?? localeLang,
+  );
+  const [timezone, setTimezone] = useState<string>(
+    (profile as { timezone?: string } | null)?.timezone ?? localeTz,
+  );
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
+  const savePreferences = async () => {
+    setSavingPrefs(true);
+    try {
+      await updateProfileFn({ data: { language, timezone } });
+      setLocaleLang(language);
+      setLocaleTz(timezone);
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Preferences updated");
+    } catch (err) {
+      console.error("Preferences update failed:", err);
+      toast.error("Couldn't update preferences");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
+
   const dueDateObj = profile?.due_date ? new Date(profile.due_date) : null;
   const weeksPregnant = dueDateObj
     ? Math.max(1, Math.min(40, 40 - differenceInWeeks(dueDateObj, new Date())))
