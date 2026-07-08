@@ -217,7 +217,52 @@ function SettingsPage() {
 
       {/* Account credentials */}
       <Section title="Account" icon={<User className="h-4 w-4" />}>
+        <div className="flex items-center gap-4">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-[var(--rose)] font-serif text-2xl text-white">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                {(displayName || profile?.display_name || "U")[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-1.5">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--bloom-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--ink)] disabled:opacity-50"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              {uploadingAvatar ? "Uploading…" : avatarPath ? "Change photo" : "Upload photo"}
+            </button>
+            {avatarPath && (
+              <button
+                type="button"
+                onClick={handleAvatarRemove}
+                disabled={uploadingAvatar}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--bloom-muted)] disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
         <Field label="Display name">
+
           <input
             type="text"
             value={displayName}
