@@ -51,12 +51,17 @@ function AuthPage() {
         if (error) throw error;
         await goAfterAuth("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+        // Supabase returns a user with an empty identities array when the email
+        // is already registered (to avoid leaking existence). Treat as duplicate.
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          throw new Error("An account with this email already exists. Try signing in instead.");
+        }
         await goAfterAuth("/onboarding");
       }
     } catch (err) {

@@ -5,8 +5,10 @@ import { useState } from "react";
 import { getProfile, updateProfile } from "@/lib/profiles.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
-import { ArrowLeft, Moon, Sun, User, Mail, Lock, Calendar, Check, Palette } from "lucide-react";
+import { ArrowLeft, Moon, Sun, User, Mail, Lock, Check, Palette, Globe, Clock } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
+import { useLocale } from "@/hooks/use-locale";
+import { LANGUAGES, TIMEZONES, type LanguageCode } from "@/lib/i18n";
 import { toast } from "sonner";
 
 const profileQuery = () =>
@@ -46,6 +48,34 @@ function SettingsPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
+
+  const localeLang = useLocale((s) => s.language);
+  const localeTz = useLocale((s) => s.timezone);
+  const setLocaleLang = useLocale((s) => s.setLanguage);
+  const setLocaleTz = useLocale((s) => s.setTimezone);
+  const [language, setLanguage] = useState<LanguageCode>(
+    ((profile as { language?: string } | null)?.language as LanguageCode) ?? localeLang,
+  );
+  const [timezone, setTimezone] = useState<string>(
+    (profile as { timezone?: string } | null)?.timezone ?? localeTz,
+  );
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
+  const savePreferences = async () => {
+    setSavingPrefs(true);
+    try {
+      await updateProfileFn({ data: { language, timezone } });
+      setLocaleLang(language);
+      setLocaleTz(timezone);
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Preferences updated");
+    } catch (err) {
+      console.error("Preferences update failed:", err);
+      toast.error("Couldn't update preferences");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   const dueDateObj = profile?.due_date ? new Date(profile.due_date) : null;
   const weeksPregnant = dueDateObj
@@ -190,6 +220,47 @@ function SettingsPage() {
           disabled={!password || !confirmPassword}
         >
           Update password
+        </PrimaryButton>
+      </Section>
+
+      {/* Preferences: language & timezone */}
+      <Section title="Preferences" icon={<Globe className="h-4 w-4" />}>
+        <Field label="Language">
+          <div className="relative">
+            <Globe className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+              className="input"
+              style={{ paddingLeft: 34 }}
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
+        <Field label="Timezone">
+          <div className="relative">
+            <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+            <select
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              className="input"
+              style={{ paddingLeft: 34 }}
+            >
+              {(TIMEZONES.includes(timezone) ? TIMEZONES : [timezone, ...TIMEZONES]).map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz.replace(/_/g, " ")}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
+        <PrimaryButton onClick={savePreferences} loading={savingPrefs}>
+          Save preferences
         </PrimaryButton>
       </Section>
 

@@ -155,18 +155,24 @@ export type Database = {
           display_name: string | null
           due_date: string | null
           id: string
+          language: string
+          timezone: string
         }
         Insert: {
           created_at?: string
           display_name?: string | null
           due_date?: string | null
           id: string
+          language?: string
+          timezone?: string
         }
         Update: {
           created_at?: string
           display_name?: string | null
           due_date?: string | null
           id?: string
+          language?: string
+          timezone?: string
         }
         Relationships: []
       }
