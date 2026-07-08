@@ -223,6 +223,47 @@ function SettingsPage() {
         </PrimaryButton>
       </Section>
 
+      {/* Preferences: language & timezone */}
+      <Section title="Preferences" icon={<Globe className="h-4 w-4" />}>
+        <Field label="Language">
+          <div className="relative">
+            <Globe className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+              className="input"
+              style={{ paddingLeft: 34 }}
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
+        <Field label="Timezone">
+          <div className="relative">
+            <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bloom-muted)]" />
+            <select
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              className="input"
+              style={{ paddingLeft: 34 }}
+            >
+              {(TIMEZONES.includes(timezone) ? TIMEZONES : [timezone, ...TIMEZONES]).map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz.replace(/_/g, " ")}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
+        <PrimaryButton onClick={savePreferences} loading={savingPrefs}>
+          Save preferences
+        </PrimaryButton>
+      </Section>
+
       {/* Theme */}
       <Section title="Appearance" icon={<Palette className="h-4 w-4" />}>
         <ThemeControls currentTrimester={trimester} />
