@@ -44,6 +44,63 @@ function SettingsPage() {
   const [dueDate, setDueDate] = useState(profile?.due_date ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
+  const avatarPath = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null;
+  const avatarUrl = useAvatarUrl(avatarPath);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Image must be under 3 MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userRes.user) throw userErr ?? new Error("Not signed in");
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${userRes.user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      if (avatarPath) {
+        await supabase.storage.from("avatars").remove([avatarPath]);
+      }
+      await updateProfileFn({ data: { avatar_url: path } });
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Profile picture updated");
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      toast.error("Couldn't upload picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!avatarPath) return;
+    setUploadingAvatar(true);
+    try {
+      await supabase.storage.from("avatars").remove([avatarPath]);
+      await updateProfileFn({ data: { avatar_url: null } });
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Profile picture removed");
+    } catch (err) {
+      console.error("Avatar remove failed:", err);
+      toast.error("Couldn't remove picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const [email, setEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
 
