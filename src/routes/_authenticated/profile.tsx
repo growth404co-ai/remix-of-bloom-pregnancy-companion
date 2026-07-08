@@ -21,6 +21,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
+import { useAvatarUrl } from "@/hooks/use-avatar-url";
 
 
 const profileQuery = () =>
