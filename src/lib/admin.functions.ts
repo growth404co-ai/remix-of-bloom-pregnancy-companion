@@ -2,11 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(ctx: {
-  supabase: Awaited<ReturnType<typeof import("@supabase/supabase-js").createClient>>;
-  userId: string;
-}) {
-  const { data, error } = await ctx.supabase.rpc("has_role", {
+async function assertAdmin(ctx: { supabase: unknown; userId: string }) {
+  const client = ctx.supabase as {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  };
+  const { data, error } = await client.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "admin",
   });
@@ -17,13 +17,13 @@ async function assertAdmin(ctx: {
 export const getAdminStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const client = context.supabase as unknown as {
+      rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+    };
     const [{ data: isAdmin }, { count }] = await Promise.all([
-      context.supabase.rpc("has_role", {
-        _user_id: context.userId,
-        _role: "admin",
-      }),
+      client.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       context.supabase
-        .from("user_roles")
+        .from("user_roles" as never)
         .select("*", { count: "exact", head: true })
         .eq("role", "admin"),
     ]);
@@ -36,7 +36,10 @@ export const getAdminStatus = createServerFn({ method: "GET" })
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("claim_first_admin");
+    const client = context.supabase as unknown as {
+      rpc: (fn: string) => Promise<{ data: unknown; error: unknown }>;
+    };
+    const { data, error } = await client.rpc("claim_first_admin");
     if (error) throw error;
     return { claimed: Boolean(data) };
   });
