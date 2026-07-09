@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { getProfile } from "@/lib/profiles.functions";
 import { getOrders } from "@/lib/shop.functions";
 import { getSavedIds } from "@/lib/saved.functions";
 import { getUnreadCount } from "@/lib/notifications.functions";
+import { getAdminStatus } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
 import {
@@ -19,6 +20,7 @@ import {
   Moon,
   Sun,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
 import { useAvatarUrl } from "@/hooks/use-avatar-url";
