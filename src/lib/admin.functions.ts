@@ -92,7 +92,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase
         .from("products")
-        .update(payload)
+        .update(payload as never)
         .eq("id", data.id)
         .select()
         .single();
@@ -101,7 +101,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
     }
     const { data: row, error } = await context.supabase
       .from("products")
-      .insert(payload)
+      .insert(payload as never)
       .select()
       .single();
     if (error) throw error;
