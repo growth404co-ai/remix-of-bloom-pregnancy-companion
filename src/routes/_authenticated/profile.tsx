@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { getProfile } from "@/lib/profiles.functions";
 import { getOrders } from "@/lib/shop.functions";
 import { getSavedIds } from "@/lib/saved.functions";
 import { getUnreadCount } from "@/lib/notifications.functions";
+import { getAdminStatus } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInWeeks } from "date-fns";
 import {
@@ -19,6 +20,7 @@ import {
   Moon,
   Sun,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { useTheme, type TrimesterTheme } from "@/hooks/use-theme";
 import { useAvatarUrl } from "@/hooks/use-avatar-url";
@@ -55,7 +57,14 @@ type MenuItem = {
   icon: typeof Calendar;
   label: string;
   badge: number;
-  to?: "/orders" | "/saved" | "/notifications" | "/ask" | "/settings" | "/appointments";
+  to?:
+    | "/orders"
+    | "/saved"
+    | "/notifications"
+    | "/ask"
+    | "/settings"
+    | "/appointments"
+    | "/admin";
 };
 
 function ProfilePage() {
@@ -63,8 +72,15 @@ function ProfilePage() {
   const { data: ordersData } = useSuspenseQuery(ordersQuery());
   const { data: savedData } = useSuspenseQuery(savedIdsQuery());
   const { data: unreadData } = useSuspenseQuery(unreadQuery());
+  const adminStatusQuery = useQuery({
+    queryKey: ["admin-status"],
+    queryFn: () => getAdminStatus(),
+  });
   const profile = profileData?.profile;
   const navigate = useNavigate();
+
+  const showAdmin =
+    adminStatusQuery.data?.isAdmin || adminStatusQuery.data?.anyAdminExists === false;
 
   const menuItems: MenuItem[] = [
     { icon: Settings, label: "Settings", badge: 0, to: "/settings" },
@@ -75,6 +91,9 @@ function ProfilePage() {
     { icon: Bell, label: "Notifications", badge: unreadData?.count ?? 0, to: "/notifications" },
     { icon: Shield, label: "Privacy & security", badge: 0 },
     { icon: Sparkles, label: "Ask AI anything", badge: 0, to: "/ask" },
+    ...(showAdmin
+      ? [{ icon: ShieldCheck, label: "Admin — Products", badge: 0, to: "/admin" as const }]
+      : []),
   ];
 
   const dueDate = profile?.due_date ? new Date(profile.due_date) : null;
