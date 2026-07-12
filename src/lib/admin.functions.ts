@@ -36,12 +36,18 @@ export const getAdminStatus = createServerFn({ method: "GET" })
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const client = context.supabase as unknown as {
-      rpc: (fn: string) => Promise<{ data: unknown; error: unknown }>;
-    };
-    const { data, error } = await client.rpc("claim_first_admin");
-    if (error) throw error;
-    return { claimed: Boolean(data) };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count, error: countErr } = await supabaseAdmin
+      .from("user_roles" as never)
+      .select("*", { count: "exact", head: true })
+      .eq("role", "admin");
+    if (countErr) throw countErr;
+    if ((count ?? 0) > 0) return { claimed: false };
+    const { error: insErr } = await supabaseAdmin
+      .from("user_roles" as never)
+      .insert({ user_id: context.userId, role: "admin" } as never);
+    if (insErr) throw insErr;
+    return { claimed: true };
   });
 
 export const listAllProducts = createServerFn({ method: "GET" })
