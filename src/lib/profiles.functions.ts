@@ -24,25 +24,22 @@ const updateProfileSchema = z.object({
   language: z.string().trim().min(2).max(8).optional(),
   timezone: z.string().trim().min(1).max(64).optional(),
   avatar_url: z.string().trim().max(500).nullable().optional(),
+  partner_name: z.string().trim().max(80).nullable().optional(),
+  health_conditions: z.array(z.string().trim().max(80)).max(20).optional(),
+  dietary_preferences: z.array(z.string().trim().max(80)).max(20).optional(),
+  pregnancy_history: z.string().trim().max(1000).nullable().optional(),
+  previous_pregnancies: z.number().int().min(0).max(20).optional(),
 });
 
 export const updateProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => updateProfileSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const patch: {
-      display_name?: string;
-      due_date?: string;
-      language?: string;
-      timezone?: string;
-      avatar_url?: string | null;
-    } = {};
-    if (data.display_name !== undefined) patch.display_name = data.display_name;
-    if (data.due_date !== undefined) patch.due_date = data.due_date;
-    if (data.language !== undefined) patch.language = data.language;
-    if (data.timezone !== undefined) patch.timezone = data.timezone;
-    if (data.avatar_url !== undefined) patch.avatar_url = data.avatar_url;
-
+    const patch: Partial<typeof data> = {};
+    for (const key of Object.keys(data) as (keyof typeof data)[]) {
+      const val = data[key];
+      if (val !== undefined) (patch as Record<string, unknown>)[key] = val;
+    }
     const { data: profile, error } = await context.supabase
       .from("profiles")
       .update(patch)

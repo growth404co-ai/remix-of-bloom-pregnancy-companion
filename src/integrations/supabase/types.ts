@@ -44,6 +44,132 @@ export type Database = {
         }
         Relationships: []
       }
+      contractions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          intensity: number | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          intensity?: number | null
+          started_at: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          intensity?: number | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_entries: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          mood: string | null
+          photo_path: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          mood?: string | null
+          photo_path?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          mood?: string | null
+          photo_path?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meal_plans: {
+        Row: {
+          created_at: string
+          id: string
+          meal_type: string
+          notes: string | null
+          plan_date: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meal_type: string
+          notes?: string | null
+          plan_date?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meal_type?: string
+          notes?: string | null
+          plan_date?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medications: {
+        Row: {
+          active: boolean
+          created_at: string
+          dosage: string | null
+          id: string
+          name: string
+          notes: string | null
+          schedule: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          dosage?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          schedule?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          dosage?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          schedule?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -104,6 +230,27 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_links: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          partner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          partner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          partner_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           affiliate_url: string | null
@@ -159,28 +306,49 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          dietary_preferences: string[] | null
           display_name: string | null
           due_date: string | null
+          health_conditions: string[] | null
           id: string
           language: string
+          partner_invite_code: string | null
+          partner_name: string | null
+          pregnancy_history: string | null
+          previous_pregnancies: number | null
+          push_endpoint: string | null
           timezone: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          dietary_preferences?: string[] | null
           display_name?: string | null
           due_date?: string | null
+          health_conditions?: string[] | null
           id: string
           language?: string
+          partner_invite_code?: string | null
+          partner_name?: string | null
+          pregnancy_history?: string | null
+          previous_pregnancies?: number | null
+          push_endpoint?: string | null
           timezone?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          dietary_preferences?: string[] | null
           display_name?: string | null
           due_date?: string | null
+          health_conditions?: string[] | null
           id?: string
           language?: string
+          partner_invite_code?: string | null
+          partner_name?: string | null
+          pregnancy_history?: string | null
+          previous_pregnancies?: number | null
+          push_endpoint?: string | null
           timezone?: string
         }
         Relationships: []
@@ -213,6 +381,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      symptom_checks: {
+        Row: {
+          ai_advice: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          risk_level: string | null
+          symptoms: string[]
+          user_id: string
+        }
+        Insert: {
+          ai_advice?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          risk_level?: string | null
+          symptoms?: string[]
+          user_id: string
+        }
+        Update: {
+          ai_advice?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          risk_level?: string | null
+          symptoms?: string[]
+          user_id?: string
+        }
+        Relationships: []
       }
       tracker_logs: {
         Row: {
@@ -274,6 +472,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_partner_of: { Args: { _owner: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
