@@ -1,0 +1,19 @@
+{
+  "name": "Bloom My Bump — Pregnancy Wellness",
+  "short_name": "Bloom",
+  "description": "Your calm pregnancy companion — weekly baby growth, symptoms, meals, contractions, journal and AI support.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf7f0",
+  "theme_color": "#c94070",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

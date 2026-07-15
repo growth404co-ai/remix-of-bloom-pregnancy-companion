@@ -142,6 +142,32 @@ function HomePage() {
         </div>
       </div>
 
+      {/* Quick modules */}
+      <div className="mt-5 px-4">
+        <h2 className="mb-2.5 font-serif text-lg text-[var(--ink)]">Wellness modules</h2>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { to: "/symptoms", label: "Symptoms", emoji: "🩺" },
+            { to: "/contractions", label: "Contractions", emoji: "⏱️" },
+            { to: "/medications", label: "Meds", emoji: "💊" },
+            { to: "/meals", label: "Meals", emoji: "🥗" },
+            { to: "/journal", label: "Journal", emoji: "📖" },
+            { to: "/learn", label: "Learn", emoji: "📚" },
+            { to: "/partner", label: "Partner", emoji: "💞" },
+            { to: "/appointments", label: "Appts", emoji: "📅" },
+          ].map((m) => (
+            <Link
+              key={m.to}
+              to={m.to}
+              className="flex flex-col items-center gap-1 rounded-2xl border border-[var(--bloom-border)] bg-white p-2.5 text-center"
+            >
+              <span className="text-xl">{m.emoji}</span>
+              <span className="text-[10px] font-medium text-[var(--ink)]">{m.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Today's tips */}
       <div className="mt-5 px-4">
         <div className="mb-2.5 flex items-center justify-between">

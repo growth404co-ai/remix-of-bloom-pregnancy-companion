@@ -64,7 +64,14 @@ type MenuItem = {
     | "/ask"
     | "/settings"
     | "/appointments"
-    | "/admin";
+    | "/admin"
+    | "/symptoms"
+    | "/contractions"
+    | "/medications"
+    | "/meals"
+    | "/journal"
+    | "/learn"
+    | "/partner";
 };
 
 function ProfilePage() {
@@ -84,10 +91,16 @@ function ProfilePage() {
 
   const menuItems: MenuItem[] = [
     { icon: Settings, label: "Settings", badge: 0, to: "/settings" },
+    { icon: Sparkles, label: "Symptom checker", badge: 0, to: "/symptoms" },
+    { icon: Calendar, label: "Contraction timer", badge: 0, to: "/contractions" },
+    { icon: Heart, label: "Medications", badge: 0, to: "/medications" },
+    { icon: Package, label: "Meal planner", badge: 0, to: "/meals" },
+    { icon: Sparkles, label: "Journal", badge: 0, to: "/journal" },
+    { icon: Users, label: "Partner mode", badge: 0, to: "/partner" },
+    { icon: Bell, label: "Learn library", badge: 0, to: "/learn" },
     { icon: Calendar, label: "Appointments", badge: 0, to: "/appointments" },
     { icon: Heart, label: "Saved products", badge: savedData?.ids.length ?? 0, to: "/saved" },
     { icon: Package, label: "My orders", badge: ordersData?.orders.length ?? 0, to: "/orders" },
-    { icon: Users, label: "Community", badge: 0 },
     { icon: Bell, label: "Notifications", badge: unreadData?.count ?? 0, to: "/notifications" },
     { icon: Shield, label: "Privacy & security", badge: 0 },
     { icon: Sparkles, label: "Ask AI anything", badge: 0, to: "/ask" },
