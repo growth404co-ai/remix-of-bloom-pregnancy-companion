@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Product images viewable by authenticated" ON storage.objects;
