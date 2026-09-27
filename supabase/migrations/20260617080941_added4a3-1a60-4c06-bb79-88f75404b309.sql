@@ -1,1 +1,0 @@
-REVOKE EXECUTE ON FUNCTION public.create_welcome_notification() FROM PUBLIC, anon, authenticated;
